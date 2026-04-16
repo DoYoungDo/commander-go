@@ -1,12 +1,13 @@
 package commandergo
 
 type Command struct {
-	name        string
-	version     string
-	description string
-	parent      *Command
-	_arguments  Arguments
-	_options    Options
+	name         string
+	version      string
+	description  string
+	parent       *Command
+	_arguments   Arguments
+	_options     Options
+	_subCommands Commands
 }
 
 func New(name string) *Command {

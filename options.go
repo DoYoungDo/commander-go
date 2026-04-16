@@ -26,7 +26,7 @@ type Option struct {
 var OPTION_FLAT_PATTERN = regexp.MustCompile(`^\s*(?:(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+)\s+(?:\[([a-zA-Z]+)(\.\.\.)?\]|<([a-zA-Z]+)(\.\.\.)?>))|(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+))|(?:\-\-([a-zA-Z-]+)\s+(?:(?:\[([a-zA-Z]+)(\.\.\.)?\])|(?:\<([a-zA-Z]+)(\.\.\.)?\>)))|(?:\-\-([a-zA-Z-]+)))\s*$`)
 
 /**
- * ps:
+* ps: --a | -a --abc | --a [valueName...] | -a --abc <valueName...>
  */
 func NewOption(flag string) (*Option, error) {
 	if !OPTION_FLAT_PATTERN.MatchString(flag) {
