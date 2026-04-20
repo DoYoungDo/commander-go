@@ -47,7 +47,7 @@ func (c *Command) Command(nameAndArg, desc string) *Command {
 	return c.command(nameAndArg, desc)
 }
 
-func (c *Command) Parent(nameAndArg, desc string) *Command {
+func (c *Command) Parent() *Command {
 	return c.parent
 }
 
