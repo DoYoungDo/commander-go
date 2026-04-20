@@ -24,18 +24,18 @@ type Argument struct {
 	valueRequired bool
 }
 
-var ARGUMENT_FLAT_PATTERN = regexp.MustCompile(`^\s*(?:(?:\[([a-zA-Z][a-zA-Z\d]+)(\.\.\.)?\])|(?:<([a-zA-Z][a-zA-Z\d]+)(\.\.\.)?>))\s*$`)
+var ARGUMENT_FLAG_PATTERN = regexp.MustCompile(`^\s*(?:(?:\[([a-zA-Z][a-zA-Z\d]+)(\.\.\.)?\])|(?:<([a-zA-Z][a-zA-Z\d]+)(\.\.\.)?>))\s*$`)
 
 /**
  * ps: [name] | [name...] | <name> | <name...>
  */
 
 func NewArgument(text string) (*Argument, error) {
-	if !ARGUMENT_FLAT_PATTERN.MatchString(text) {
+	if !ARGUMENT_FLAG_PATTERN.MatchString(text) {
 		return nil, fmt.Errorf("invalid argument name :%v", text)
 	}
 
-	group := ARGUMENT_FLAT_PATTERN.FindStringSubmatch(text)
+	group := ARGUMENT_FLAG_PATTERN.FindStringSubmatch(text)
 	if group == nil {
 		return nil, fmt.Errorf("invalid argument name :%v", text)
 	}
@@ -63,7 +63,7 @@ func (c *Command) arguments(name, desc string, defaultValue any) *Command {
 	if err != nil {
 		panic(err)
 	}
-	if !c._arguments.has(arg.name) {
+	if c._arguments.has(arg.name) {
 		panic(fmt.Errorf("argument %s already exists", arg.name))
 	}
 

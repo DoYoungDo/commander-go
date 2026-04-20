@@ -12,8 +12,11 @@ type Command struct {
 
 func New(name string) *Command {
 	return &Command{
-		name:   name,
-		parent: nil,
+		name:         name,
+		parent:       nil,
+		_arguments:   Arguments{},
+		_options:     Options{},
+		_subCommands: Commands{},
 	}
 }
 

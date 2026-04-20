@@ -23,16 +23,16 @@ type Option struct {
 	valueName     string
 }
 
-var OPTION_FLAT_PATTERN = regexp.MustCompile(`^\s*(?:(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+)\s+(?:\[([a-zA-Z]+)(\.\.\.)?\]|<([a-zA-Z]+)(\.\.\.)?>))|(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+))|(?:\-\-([a-zA-Z-]+)\s+(?:(?:\[([a-zA-Z]+)(\.\.\.)?\])|(?:\<([a-zA-Z]+)(\.\.\.)?\>)))|(?:\-\-([a-zA-Z-]+)))\s*$`)
+var OPTION_FLAG_PATTERN = regexp.MustCompile(`^\s*(?:(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+)\s+(?:\[([a-zA-Z]+)(\.\.\.)?\]|<([a-zA-Z]+)(\.\.\.)?>))|(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+))|(?:\-\-([a-zA-Z-]+)\s+(?:(?:\[([a-zA-Z]+)(\.\.\.)?\])|(?:\<([a-zA-Z]+)(\.\.\.)?\>)))|(?:\-\-([a-zA-Z-]+)))\s*$`)
 
 /**
 * ps: --a | -a --abc | --a [valueName...] | -a --abc <valueName...>
  */
 func NewOption(flag string) (*Option, error) {
-	if !OPTION_FLAT_PATTERN.MatchString(flag) {
+	if !OPTION_FLAG_PATTERN.MatchString(flag) {
 		return nil, fmt.Errorf("invalid option flag :%v", flag)
 	}
-	group := OPTION_FLAT_PATTERN.FindStringSubmatch(flag)
+	group := OPTION_FLAG_PATTERN.FindStringSubmatch(flag)
 	tryGroup := func(indexs []int) string {
 		for _, index := range indexs {
 			if group[index] != "" {
