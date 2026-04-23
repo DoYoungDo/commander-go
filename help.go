@@ -8,8 +8,14 @@ import (
 func (c *Command) helpText() string {
 	var b strings.Builder
 
-	// Usage line
-	usage := "Usage: " + c.name
+	// Usage line，向上遍历拼出完整路径
+	fullName := c.name
+	p := c.parent
+	for p != nil {
+		fullName = p.name + " " + fullName
+		p = p.parent
+	}
+	usage := "Usage: " + fullName
 	if len(c._options) > 0 {
 		usage += " [options]"
 	}
