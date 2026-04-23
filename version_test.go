@@ -7,7 +7,7 @@ func TestVersionRegistersOption(t *testing.T) {
 	if !cmd._options.has("version") {
 		t.Fatal("Version() should auto-register --version option")
 	}
-	opt := cmd._options["version"]
+	opt, _ := cmd._options.get("version")
 	if opt.alias != "V" {
 		t.Fatalf("--version alias should be 'V', got %q", opt.alias)
 	}

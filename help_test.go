@@ -10,7 +10,7 @@ func TestNewRegistersHelp(t *testing.T) {
 	if !cmd._options.has("help") {
 		t.Fatal("New() should auto-register --help option")
 	}
-	opt := cmd._options["help"]
+	opt, _ := cmd._options.get("help")
 	if opt.alias != "h" {
 		t.Fatalf("--help alias should be 'h', got %q", opt.alias)
 	}

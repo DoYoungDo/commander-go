@@ -30,7 +30,7 @@ func parseValue(s string) Varaint {
 }
 
 func (c *Command) findOptionByName(name string) *Option {
-	if opt, ok := c._options[name]; ok {
+	if opt, ok := c._options.get(name); ok {
 		return opt
 	}
 	return nil
@@ -123,7 +123,7 @@ func (c *Command) parse(args []string) error {
 
 		// 普通 token：子命令或位置参数
 		if m := reCommand.FindStringSubmatch(token); m != nil {
-			if sub, ok := c._subCommands[m[1]]; ok {
+			if sub, ok := c._subCommands.get(m[1]); ok {
 				return sub.parse(args[i+1:])
 			}
 		}

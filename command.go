@@ -5,11 +5,24 @@ import (
 	"regexp"
 )
 
-type Commands map[string]*Command
+type Commands []*Command
 
 func (o Commands) has(name string) bool {
-	_, ok := o[name]
-	return ok
+	for _, cmd := range o {
+		if cmd.name == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (o Commands) get(name string) (*Command, bool) {
+	for _, cmd := range o {
+		if cmd.name == name {
+			return cmd, true
+		}
+	}
+	return nil, false
 }
 
 var CONMMAND_FLAG_PATTERN = regexp.MustCompile(`^\s*([a-zA-Z][a-zA-Z\d]+)\s*((?:\[[a-zA-Z][a-zA-Z\d]+(?:\.\.\.)?\])|(?:<[a-zA-Z][a-zA-Z\d]+(?:\.\.\.)?>))?\s*$`)
@@ -50,6 +63,6 @@ func (c *Command) command(nameAndArg, desc string) *Command {
 	}
 
 	cmd.Description(desc).parent = c
-	c._subCommands[cmd.name] = cmd
+	c._subCommands = append(c._subCommands, cmd)
 	return cmd
 }

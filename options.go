@@ -5,11 +5,24 @@ import (
 	"regexp"
 )
 
-type Options map[string]*Option
+type Options []*Option
 
 func (o Options) has(name string) bool {
-	_, ok := o[name]
-	return ok
+	for _, opt := range o {
+		if opt.name == name {
+			return true
+		}
+	}
+	return false
+}
+
+func (o Options) get(name string) (*Option, bool) {
+	for _, opt := range o {
+		if opt.name == name {
+			return opt, true
+		}
+	}
+	return nil, false
 }
 
 type Option struct {
@@ -75,7 +88,7 @@ func (c *Command) options(flag, desc string, defaultValue any) *Command {
 
 	option.desc = desc
 	option.defaultValue = Varaint{value: defaultValue}
-	c._options[option.name] = option
+	c._options = append(c._options, option)
 
 	return c
 }
