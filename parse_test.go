@@ -139,3 +139,78 @@ func TestParseValueTypeInference(t *testing.T) {
 		t.Error("action not called")
 	}
 }
+
+func TestParseFloatValueInference(t *testing.T) {
+	var called bool
+	New("app").
+		Options("-r, --rate <n>", "rate", 0.0).
+		Action(func(ctx *Context) {
+			called = true
+			if ctx.Opt("rate").toFloat() != 1.5 {
+				t.Errorf("expected 1.5, got %v", ctx.Opt("rate").toFloat())
+			}
+		}).
+		Parse([]string{"--rate", "1.5"})
+	if !called {
+		t.Error("action not called")
+	}
+}
+
+func TestParseBoolValueInference(t *testing.T) {
+	var called bool
+	New("app").
+		Options("-d, --debug <flag>", "debug flag", false).
+		Action(func(ctx *Context) {
+			called = true
+			if !ctx.Opt("debug").isBool() {
+				t.Error("expected bool value")
+			}
+		}).
+		Parse([]string{"--debug", "true"})
+	if !called {
+		t.Error("action not called")
+	}
+}
+
+func TestParseMultiAlias(t *testing.T) {
+	var called bool
+	New("app").
+		Options("-v, --verbose", "verbose", false).
+		Options("-d, --debug", "debug", false).
+		Action(func(ctx *Context) {
+			called = true
+			if !ctx.Opt("verbose").toBool() {
+				t.Error("expected verbose=true")
+			}
+			if !ctx.Opt("debug").toBool() {
+				t.Error("expected debug=true")
+			}
+		}).
+		Parse([]string{"-vd"})
+	if !called {
+		t.Error("action not called")
+	}
+}
+
+func TestParseVersionOutput(t *testing.T) {
+	err := New("app").Version("1.2.3").Parse([]string{"--version"})
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestParseHelpOutput(t *testing.T) {
+	err := New("app").Description("test app").Parse([]string{"--help"})
+	if err != nil {
+		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestParseMissingRequiredOptionValue(t *testing.T) {
+	err := New("app").
+		Options("-o, --output <file>", "output", "").
+		Parse([]string{"--output"})
+	if err == nil {
+		t.Error("expected error for missing required option value")
+	}
+}
