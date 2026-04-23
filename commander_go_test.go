@@ -6,11 +6,11 @@ func TestCommander(t *testing.T) {
 	New("todo").
 		Description("description").
 		Version("0.0.1").
-		Arguments("todo", "", nil).
+		Arguments("[todo]", "", nil).
 		Command("add", "add todo").
-		Arguments("todo", "todo", nil).
+		Arguments("[todo]", "todo", nil).
 		Parent().
-		Action(func(cmd *Command) {
+		Action(func(ctx *Context) {
 
 		}).
 		Parse()

@@ -33,7 +33,11 @@ func newCommandWithNameAndArg(nameAndArg string) (*Command, error) {
 	}
 	arg := tryGroup([]int{2})
 
-	return New(name).Arguments(arg, "", nil), nil
+	cmd := New(name)
+	if arg != "" {
+		cmd.Arguments(arg, "", nil)
+	}
+	return cmd, nil
 }
 
 func (c *Command) command(nameAndArg, desc string) *Command {

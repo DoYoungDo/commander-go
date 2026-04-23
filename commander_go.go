@@ -8,6 +8,7 @@ type Command struct {
 	_arguments   Arguments
 	_options     Options
 	_subCommands Commands
+	actionFn     func(ctx *Context)
 }
 
 func New(name string) *Command {
@@ -51,7 +52,8 @@ func (c *Command) Parent() *Command {
 	return c.parent
 }
 
-func (c *Command) Action(call func(cmd *Command)) *Command {
+func (c *Command) Action(call func(ctx *Context)) *Command {
+	c.actionFn = call
 	return c
 }
 
