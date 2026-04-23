@@ -30,6 +30,7 @@ func (c *Command) Name(name string) *Command {
 
 func (c *Command) Version(version string) *Command {
 	c.version = version
+	c.options("-V, --version", "output the version number", false)
 	return c
 }
 
