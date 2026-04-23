@@ -36,3 +36,13 @@ func (v Varaint) toFloat() float64 {
 	f := v.value.(float64)
 	return f
 }
+
+// 导出方法供外部包使用
+func (v Varaint) IsString() bool    { return v.isString() }
+func (v Varaint) ToString() string  { return v.toString() }
+func (v Varaint) IsInt() bool       { return v.isInt() }
+func (v Varaint) ToInt() int        { return v.toInt() }
+func (v Varaint) IsBool() bool      { return v.isBool() }
+func (v Varaint) ToBool() bool      { return v.toBool() }
+func (v Varaint) IsFloat() bool     { return v.isFloat() }
+func (v Varaint) ToFloat() float64  { return v.toFloat() }
