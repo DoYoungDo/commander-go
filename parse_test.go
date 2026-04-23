@@ -111,9 +111,16 @@ func TestParseRequiredArgMissing(t *testing.T) {
 }
 
 func TestParseUnknownOption(t *testing.T) {
-	err := New("app").Parse([]string{"--unknown"})
-	if err == nil {
-		t.Error("expected error for unknown option")
+	// 未知选项应该 warning 并继续，不返回 error，action 正常调用
+	var called bool
+	err := New("app").
+		Action(func(ctx *Context) { called = true }).
+		Parse([]string{"--unknown"})
+	if err != nil {
+		t.Errorf("unknown option should warn not error, got: %v", err)
+	}
+	if !called {
+		t.Error("action should still be called after unknown option warning")
 	}
 }
 

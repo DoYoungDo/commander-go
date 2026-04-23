@@ -2,6 +2,7 @@ package commandergo
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strconv"
 )
@@ -56,7 +57,9 @@ func (c *Command) parse(args []string) error {
 			name, inlineVal := m[1], m[2]
 			opt := c.findOptionByName(name)
 			if opt == nil {
-				return fmt.Errorf("unknown option: --%s", name)
+				fmt.Fprintf(os.Stderr, "warning: unknown option: --%s\n", name)
+				i++
+				continue
 			}
 			i++
 			if opt.valueName != "" {
@@ -88,7 +91,8 @@ func (c *Command) parse(args []string) error {
 				a := string(aliases[j])
 				opt := c.findOptionByAlias(a)
 				if opt == nil {
-					return fmt.Errorf("unknown option: -%s", a)
+					fmt.Fprintf(os.Stderr, "warning: unknown option: -%s\n", a)
+					continue
 				}
 				ctx.parsedOpts[opt.name] = Varaint{value: true}
 			}
@@ -96,7 +100,8 @@ func (c *Command) parse(args []string) error {
 			last := string(aliases[len(aliases)-1])
 			opt := c.findOptionByAlias(last)
 			if opt == nil {
-				return fmt.Errorf("unknown option: -%s", last)
+				fmt.Fprintf(os.Stderr, "warning: unknown option: -%s\n", last)
+				continue
 			}
 			if opt.valueName != "" {
 				val := inlineVal
