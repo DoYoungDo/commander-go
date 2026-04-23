@@ -60,6 +60,6 @@ func (c *Command) Action(call func(ctx *Context)) *Command {
 	return c
 }
 
-func (c *Command) Parse() error {
-	return nil
+func (c *Command) Parse(args []string) error {
+	return c.parse(args)
 }

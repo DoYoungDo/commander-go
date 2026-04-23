@@ -13,5 +13,5 @@ func TestCommander(t *testing.T) {
 		Action(func(ctx *Context) {
 
 		}).
-		Parse()
+		Parse([]string{})
 }
