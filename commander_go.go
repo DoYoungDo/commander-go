@@ -12,13 +12,15 @@ type Command struct {
 }
 
 func New(name string) *Command {
-	return &Command{
+	c := &Command{
 		name:         name,
 		parent:       nil,
 		_arguments:   Arguments{},
 		_options:     Options{},
 		_subCommands: Commands{},
 	}
+	c.options("-h, --help", "display help for command", false)
+	return c
 }
 
 func (c *Command) Name(name string) *Command {
