@@ -19,7 +19,7 @@ func New(name string) *Command {
 		_options:     Options{},
 		_subCommands: Commands{},
 	}
-	c.options("-h, --help", "display help for command", false)
+	c.options("-h, --help", "display help for command", nil)
 	return c
 }
 
@@ -30,7 +30,7 @@ func (c *Command) Name(name string) *Command {
 
 func (c *Command) Version(version string) *Command {
 	c.version = version
-	c.options("-V, --version", "output the version number", false)
+	c.options("-V, --version", "output the version number", nil)
 	return c
 }
 
