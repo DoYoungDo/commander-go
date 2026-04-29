@@ -160,6 +160,13 @@ func (c *Command) parse(args []string) error {
 		}
 	}
 
+	// 检查有默认值的option
+	for _, opt := range c._options {
+		if _, ok := ctx.parsedOpts[opt.name]; !ok && !opt.defaultValue.IsEmpty() {
+			ctx.parsedOpts[opt.name] = opt.defaultValue
+		}
+	}
+
 	if c.actionFn != nil {
 		c.actionFn(ctx)
 	}
