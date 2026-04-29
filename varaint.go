@@ -1,5 +1,7 @@
 package commandergo
 
+import "fmt"
+
 type Varaint struct {
 	value any
 }
@@ -38,11 +40,17 @@ func (v Varaint) toFloat() float64 {
 }
 
 // 导出方法供外部包使用
-func (v Varaint) IsString() bool    { return v.isString() }
-func (v Varaint) ToString() string  { return v.toString() }
-func (v Varaint) IsInt() bool       { return v.isInt() }
-func (v Varaint) ToInt() int        { return v.toInt() }
-func (v Varaint) IsBool() bool      { return v.isBool() }
-func (v Varaint) ToBool() bool      { return v.toBool() }
-func (v Varaint) IsFloat() bool     { return v.isFloat() }
-func (v Varaint) ToFloat() float64  { return v.toFloat() }
+func (v Varaint) IsString() bool   { return v.isString() }
+func (v Varaint) ToString() string { return v.toString() }
+func (v Varaint) IsInt() bool      { return v.isInt() }
+func (v Varaint) ToInt() int       { return v.toInt() }
+func (v Varaint) IsBool() bool     { return v.isBool() }
+func (v Varaint) ToBool() bool     { return v.toBool() }
+func (v Varaint) IsFloat() bool    { return v.isFloat() }
+func (v Varaint) ToFloat() float64 { return v.toFloat() }
+func (v Varaint) ForceToString() string {
+	if v.isString() {
+		return v.toString()
+	}
+	return fmt.Sprintf("%v", v.value)
+}
