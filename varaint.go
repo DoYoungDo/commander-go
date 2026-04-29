@@ -40,6 +40,9 @@ func (v Varaint) toFloat() float64 {
 }
 
 // 导出方法供外部包使用
+func (v Varaint) IsEmpty() bool {
+	return v == Varaint{} || v.value == nil
+}
 func (v Varaint) IsString() bool   { return v.isString() }
 func (v Varaint) ToString() string { return v.toString() }
 func (v Varaint) IsInt() bool      { return v.isInt() }

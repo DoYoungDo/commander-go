@@ -67,10 +67,19 @@ func (c *Command) parse(args []string) error {
 				if val == "" {
 					if opt.valueRequired {
 						if i >= len(args) {
+							if !opt.defaultValue.IsEmpty() {
+								ctx.parsedOpts[name] = opt.defaultValue
+								continue
+							}
 							return fmt.Errorf("option --%s requires a value", name)
 						}
 						val = args[i]
 						i++
+					} else {
+						if !opt.defaultValue.IsEmpty() {
+							ctx.parsedOpts[name] = opt.defaultValue
+							continue
+						}
 					}
 				}
 				if val != "" {

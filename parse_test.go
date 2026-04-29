@@ -208,7 +208,7 @@ func TestParseHelpOutput(t *testing.T) {
 
 func TestParseMissingRequiredOptionValue(t *testing.T) {
 	err := New("app").
-		Options("-o, --output <file>", "output", "").
+		Options("-o, --output <file>", "output", nil).
 		Parse([]string{"--output"})
 	if err == nil {
 		t.Error("expected error for missing required option value")
