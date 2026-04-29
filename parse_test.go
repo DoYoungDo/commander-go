@@ -74,8 +74,8 @@ func TestParsePositionalArg(t *testing.T) {
 		Arguments("[name]", "name", nil).
 		Action(func(ctx *Context) {
 			called = true
-			if ctx.Arg("name").toString() != "hello" {
-				t.Errorf("expected hello, got %v", ctx.Arg("name").toString())
+			if ctx.Args()[0].toString() != "hello" {
+				t.Errorf("expected hello, got %v", ctx.Args()[0].toString())
 			}
 		}).
 		Parse([]string{"hello"})
@@ -91,8 +91,8 @@ func TestParseSubCommand(t *testing.T) {
 		Arguments("[item]", "item", nil).
 		Action(func(ctx *Context) {
 			called = true
-			if ctx.Arg("item").toString() != "todo1" {
-				t.Errorf("expected todo1, got %v", ctx.Arg("item").toString())
+			if ctx.Args()[0].toString() != "todo1" {
+				t.Errorf("expected todo1, got %v", ctx.Args()[0].toString())
 			}
 		})
 	app.Parse([]string{"add", "todo1"})

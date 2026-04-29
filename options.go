@@ -31,12 +31,11 @@ type Option struct {
 	desc         string
 	defaultValue Varaint
 
-	multiValue    bool
 	valueRequired bool
 	valueName     string
 }
 
-var OPTION_FLAG_PATTERN = regexp.MustCompile(`^\s*(?:(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+)\s+(?:\[([a-zA-Z]+)(\.\.\.)?\]|<([a-zA-Z]+)(\.\.\.)?>))|(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+))|(?:\-\-([a-zA-Z-]+)\s+(?:(?:\[([a-zA-Z]+)(\.\.\.)?\])|(?:\<([a-zA-Z]+)(\.\.\.)?\>)))|(?:\-\-([a-zA-Z-]+)))\s*$`)
+var OPTION_FLAG_PATTERN = regexp.MustCompile(`^\s*(?:(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+)\s+(?:\[\s*([a-zA-Z]+)\s*\]|<\s*([a-zA-Z]+)\s*>))|(?:-([a-zA-Z])(?:(?:\s+)|(?:\s*,\s*))\-\-([a-zA-Z-]+))|(?:\-\-([a-zA-Z-]+)\s+(?:(?:\[\s*([a-zA-Z]+)\s*\])|(?:\<\s*([a-zA-Z]+)\s*\>)))|(?:\-\-([a-zA-Z-]+)))\s*$`)
 
 /**
 * ps: --a | -a --abc | --a [valueName...] | -a --abc <valueName...>
@@ -56,22 +55,20 @@ func NewOption(flag string) (*Option, error) {
 	}
 
 	name := func() string {
-		n := tryGroup([]int{2, 8, 9, 14})
+		n := tryGroup([]int{2, 6, 7, 10})
 		if n != "" {
 			return n
 		}
 		panic(fmt.Errorf("invalid option flag :%v", flag))
 	}()
-	alias := tryGroup([]int{1, 7})
-	valueName := tryGroup([]int{3, 5, 10, 12})
-	multiValue := group[4] != "" || group[6] != "" || group[11] != "" || group[13] != ""
-	valueRequired := group[5] != "" || group[12] != ""
+	alias := tryGroup([]int{1, 5})
+	valueName := tryGroup([]int{3, 4, 8, 9})
+	valueRequired := group[4] != "" || group[9] != ""
 
 	return &Option{
 		name:          name,
 		alias:         alias,
 		valueName:     valueName,
-		multiValue:    multiValue,
 		valueRequired: valueRequired,
 	}, nil
 }

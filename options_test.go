@@ -21,10 +21,6 @@ func TestNewOption(t *testing.T) {
 		t.Fatalf("NewOption expect valueName empty, but got: %v", option.valueName)
 	}
 
-	if option.multiValue {
-		t.Fatalf("NewOption expect single value, but parsed as multiValue")
-	}
-
 	if option.valueRequired {
 		t.Fatalf("NewOption expect optional value, but parsed as required value")
 	}

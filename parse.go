@@ -130,7 +130,7 @@ func (c *Command) parse(args []string) error {
 		// 位置参数：按 _arguments 顺序填入
 		argIdx := len(ctx.parsedArgs)
 		if argIdx < len(c._arguments) {
-			ctx.parsedArgs[c._arguments[argIdx].name] = parseValue(token)
+			ctx.parsedArgs = append(ctx.parsedArgs, parseValue(token))
 		}
 		i++
 	}
@@ -146,9 +146,9 @@ func (c *Command) parse(args []string) error {
 	}
 
 	// 检查必填 argument
-	for _, arg := range c._arguments {
+	for i, arg := range c._arguments {
 		if arg.valueRequired {
-			if _, ok := ctx.parsedArgs[arg.name]; !ok {
+			if i >= len(ctx.Args()) {
 				return fmt.Errorf("argument <%s> is required", arg.name)
 			}
 		}
