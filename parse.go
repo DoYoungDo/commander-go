@@ -128,10 +128,7 @@ func (c *Command) parse(args []string) error {
 			}
 		}
 		// 位置参数：按 _arguments 顺序填入
-		argIdx := len(ctx.parsedArgs)
-		if argIdx < len(c._arguments) {
-			ctx.parsedArgs = append(ctx.parsedArgs, parseValue(token))
-		}
+		ctx.parsedArgs = append(ctx.parsedArgs, parseValue(token))
 		i++
 	}
 
