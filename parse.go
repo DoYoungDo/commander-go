@@ -103,7 +103,11 @@ func (c *Command) parse(args []string) error {
 					fmt.Fprintf(os.Stderr, "warning: unknown option: -%s\n", a)
 					continue
 				}
-				ctx.parsedOpts[opt.name] = Varaint{value: true}
+				if opt.valueName != "" && !opt.defaultValue.IsEmpty() {
+					ctx.parsedOpts[opt.name] = opt.defaultValue
+				} else {
+					ctx.parsedOpts[opt.name] = Varaint{value: true}
+				}
 			}
 			// 最后一个可带值
 			last := string(aliases[len(aliases)-1])
@@ -116,10 +120,19 @@ func (c *Command) parse(args []string) error {
 				val := inlineVal
 				if val == "" && opt.valueRequired {
 					if i >= len(args) {
+						if !opt.defaultValue.IsEmpty() {
+							ctx.parsedOpts[opt.name] = opt.defaultValue
+							continue
+						}
 						return fmt.Errorf("option -%s requires a value", last)
 					}
 					val = args[i]
 					i++
+				} else {
+					if !opt.defaultValue.IsEmpty() {
+						ctx.parsedOpts[opt.name] = opt.defaultValue
+						continue
+					}
 				}
 				if val != "" {
 					ctx.parsedOpts[opt.name] = parseValue(val)
@@ -162,7 +175,7 @@ func (c *Command) parse(args []string) error {
 
 	// 检查有默认值的option
 	for _, opt := range c._options {
-		if _, ok := ctx.parsedOpts[opt.name]; !ok && !opt.defaultValue.IsEmpty() {
+		if _, ok := ctx.parsedOpts[opt.name]; !ok && opt.valueName != "" && !opt.defaultValue.IsEmpty() {
 			ctx.parsedOpts[opt.name] = opt.defaultValue
 		}
 	}
