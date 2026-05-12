@@ -150,6 +150,9 @@ func (c *Command) parse(args []string) error {
 			}
 		}
 		// 位置参数：按 _arguments 顺序填入
+		if i >= len(c._arguments) {
+			return fmt.Errorf("argument %s is not expected", token)
+		}
 		ctx.parsedArgs = append(ctx.parsedArgs, parseValue(token))
 		i++
 	}
