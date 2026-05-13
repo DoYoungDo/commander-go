@@ -18,14 +18,14 @@ func main() {
 		Arguments("<todo...>", "待办项", nil).
 		Options("-d, --done", "添加时完成", false).
 		Action(func(ctx *commander.Context) {
-			fmt.Println("add todo:", ctx.Arg("todo").ToString())
+			fmt.Println("add todo:", ctx.Args())
 		})
 
 	// rm
 	app.Command("rm", "删除 待办项").
 		Arguments("<index...>", "索引序号", nil).
 		Action(func(ctx *commander.Context) {
-			fmt.Println("rm todo:", ctx.Arg("index").ToString())
+			fmt.Println("rm todo:", ctx.Args())
 		})
 
 	// mod
@@ -37,7 +37,7 @@ func main() {
 		Options("-d, --done [done]", "修改为完成", nil).
 		Options("-p, --priority <priority>", "设置优先级，取值1-5", nil).
 		Action(func(ctx *commander.Context) {
-			fmt.Println("mod todo index:", ctx.Arg("index").ToString())
+			fmt.Println("mod todo index:", ctx.Args())
 		})
 
 	// list
@@ -53,7 +53,7 @@ func main() {
 	app.Command("done", "完成 待办项").
 		Arguments("<index...>", "索引序号", nil).
 		Action(func(ctx *commander.Context) {
-			fmt.Println("done todo:", ctx.Arg("index").ToString())
+			fmt.Println("done todo:", ctx.Args())
 		})
 
 	// mv
@@ -61,7 +61,7 @@ func main() {
 		Arguments("<index>", "待移动的待办项索引序号", nil).
 		Arguments("<distindex>", "目标索引序号", nil).
 		Action(func(ctx *commander.Context) {
-			fmt.Println("mv todo:", ctx.Arg("index").ToString(), "->", ctx.Arg("distindex").ToString())
+			fmt.Println("mv todo:", ctx.Args())
 		})
 
 	// find
@@ -71,7 +71,7 @@ func main() {
 		Options("-s, --single", "匹配单个条件", false).
 		Options("-d, --done [done]", "匹配完成待办", nil).
 		Action(func(ctx *commander.Context) {
-			fmt.Println("find todo:", ctx.Arg("todo").ToString())
+			fmt.Println("find todo:", ctx.Args())
 		})
 
 	// clear
@@ -82,10 +82,8 @@ func main() {
 
 	// 根命令 action：todo xxx 等同于 todo add xxx
 	app.Action(func(ctx *commander.Context) {
-		todo := ctx.Arg("todo")
-		if todo.IsString() && todo.ToString() != "" {
-			fmt.Println("add todo:", todo.ToString())
-		}
+		todo := ctx.Args()
+		fmt.Println("add todo:", todo)
 	})
 
 	if err := app.Parse(os.Args[1:]); err != nil {
