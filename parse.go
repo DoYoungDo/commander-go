@@ -48,6 +48,7 @@ func (c *Command) findOptionByAlias(alias string) *Option {
 func (c *Command) parse(args []string) error {
 	ctx := newContext(c)
 	i := 0
+	declareArgLen := len(c._arguments)
 
 	for i < len(args) {
 		token := args[i]
@@ -149,10 +150,14 @@ func (c *Command) parse(args []string) error {
 				return sub.parse(args[i+1:])
 			}
 		}
+
 		// 位置参数：按 _arguments 顺序填入
-		if i >= len(c._arguments) {
+		if declareArgLen == 0 {
+			return fmt.Errorf("argument %s is not expected", token)
+		} else if l := declareArgLen; l > 0 && i >= l && !c._arguments[l-1].multiValue {
 			return fmt.Errorf("argument %s is not expected", token)
 		}
+
 		ctx.parsedArgs = append(ctx.parsedArgs, parseValue(token))
 		i++
 	}
