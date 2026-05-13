@@ -92,9 +92,17 @@ func (c *Command) helpText() string {
 		nameCol := sub.name
 		for _, arg := range sub._arguments {
 			if arg.valueRequired {
-				nameCol += fmt.Sprintf(" <%s>", arg.name)
+				if arg.multiValue {
+					nameCol += fmt.Sprintf(" <%s...>", arg.name)
+				} else {
+					nameCol += fmt.Sprintf(" <%s>", arg.name)
+				}
 			} else {
-				nameCol += fmt.Sprintf(" [%s]", arg.name)
+				if arg.multiValue {
+					nameCol += fmt.Sprintf(" [%s...]", arg.name)
+				} else {
+					nameCol += fmt.Sprintf(" [%s]", arg.name)
+				}
 			}
 		}
 		cmdRows = append(cmdRows, row{nameCol, sub.description})
