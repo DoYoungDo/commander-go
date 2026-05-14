@@ -90,7 +90,7 @@ func (c *Command) helpText() string {
 	var cmdRows []row
 	for _, sub := range c._subCommands {
 		nameCol := sub.name
-		if len(sub._options) > 0 {
+		if sub.hasCustomOptions() {
 			nameCol += " [options]"
 		}
 		for _, arg := range sub._arguments {
@@ -113,4 +113,13 @@ func (c *Command) helpText() string {
 	writeRows("Commands:", cmdRows)
 
 	return b.String()
+}
+
+func (c *Command) hasCustomOptions() bool {
+	for _, opt := range c._options {
+		if opt.name != "help" {
+			return true
+		}
+	}
+	return false
 }

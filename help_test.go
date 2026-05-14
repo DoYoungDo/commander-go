@@ -23,6 +23,7 @@ func TestHelpText(t *testing.T) {
 		Options("--all", "show all todos", false)
 	cmd.Command("add [todo]", "add a new todo").
 		Options("--force", "force add", false)
+	cmd.Command("list", "list todos")
 
 	help := cmd.helpText()
 
@@ -39,10 +40,15 @@ func TestHelpText(t *testing.T) {
 		"-h, --help",
 		"Commands:",
 		"add [options] [todo]",
+		"list",
 	}
 	for _, want := range cases {
 		if !strings.Contains(help, want) {
 			t.Errorf("helpText() missing %q\ngot:\n%s", want, help)
 		}
+	}
+
+	if strings.Contains(help, "list [options]") {
+		t.Errorf("helpText() should not show default help option as subcommand options\ngot:\n%s", help)
 	}
 }
