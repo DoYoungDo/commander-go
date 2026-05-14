@@ -119,22 +119,25 @@ func (c *Command) parse(args []string) error {
 			}
 			if opt.valueName != "" {
 				val := inlineVal
-				if val == "" && opt.valueRequired {
-					if i >= len(args) {
+				if val == "" {
+					if opt.valueRequired {
+						if i >= len(args) {
+							if !opt.defaultValue.IsEmpty() {
+								ctx.parsedOpts[opt.name] = opt.defaultValue
+								continue
+							}
+							return fmt.Errorf("option -%s requires a value", last)
+						}
+						val = args[i]
+						i++
+					} else {
 						if !opt.defaultValue.IsEmpty() {
 							ctx.parsedOpts[opt.name] = opt.defaultValue
 							continue
 						}
-						return fmt.Errorf("option -%s requires a value", last)
-					}
-					val = args[i]
-					i++
-				} else {
-					if !opt.defaultValue.IsEmpty() {
-						ctx.parsedOpts[opt.name] = opt.defaultValue
-						continue
 					}
 				}
+
 				if val != "" {
 					ctx.parsedOpts[opt.name] = parseValue(val)
 				}
