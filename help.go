@@ -16,7 +16,7 @@ func (c *Command) helpText() string {
 		p = p.parent
 	}
 	usage := "Usage: " + fullName
-	if len(c._options) > 0 {
+	if c.hasCustomOptions() {
 		usage += " [options]"
 	}
 	if len(c._subCommands) > 0 {
