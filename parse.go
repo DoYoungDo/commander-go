@@ -77,10 +77,17 @@ func (c *Command) parse(args []string) error {
 						val = args[i]
 						i++
 					} else {
-						if !opt.defaultValue.IsEmpty() {
-							ctx.parsedOpts[name] = opt.defaultValue
+						if i >= len(args) {
+							if !opt.defaultValue.IsEmpty() {
+								ctx.parsedOpts[name] = opt.defaultValue
+							} else {
+								ctx.parsedOpts[name] = Varaint{value: true}
+							}
 							continue
 						}
+
+						val = args[i]
+						i++
 					}
 				}
 				if val != "" {
@@ -131,10 +138,17 @@ func (c *Command) parse(args []string) error {
 						val = args[i]
 						i++
 					} else {
-						if !opt.defaultValue.IsEmpty() {
-							ctx.parsedOpts[opt.name] = opt.defaultValue
+						if i >= len(args) {
+							if !opt.defaultValue.IsEmpty() {
+								ctx.parsedOpts[opt.name] = opt.defaultValue
+							} else {
+								ctx.parsedOpts[opt.name] = Varaint{value: true}
+							}
 							continue
 						}
+
+						val = args[i]
+						i++
 					}
 				}
 
