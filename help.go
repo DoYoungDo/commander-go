@@ -90,6 +90,9 @@ func (c *Command) helpText() string {
 	var cmdRows []row
 	for _, sub := range c._subCommands {
 		nameCol := sub.name
+		if len(sub._options) > 0 {
+			nameCol += " [options]"
+		}
 		for _, arg := range sub._arguments {
 			if arg.valueRequired {
 				if arg.multiValue {

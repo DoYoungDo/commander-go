@@ -21,7 +21,8 @@ func TestHelpText(t *testing.T) {
 		Description("A simple todo CLI").
 		Arguments("[filter]", "filter todos", nil).
 		Options("--all", "show all todos", false)
-	cmd.Command("add [todo]", "add a new todo")
+	cmd.Command("add [todo]", "add a new todo").
+		Options("--force", "force add", false)
 
 	help := cmd.helpText()
 
@@ -37,7 +38,7 @@ func TestHelpText(t *testing.T) {
 		"--all",
 		"-h, --help",
 		"Commands:",
-		"add",
+		"add [options] [todo]",
 	}
 	for _, want := range cases {
 		if !strings.Contains(help, want) {
