@@ -11,6 +11,8 @@ var (
 	reLongOpt  = regexp.MustCompile(`^--([a-zA-Z][a-zA-Z-]*)(?:=(.+))?$`)
 	reShortOpt = regexp.MustCompile(`^-([a-zA-Z]+)(?:=(.+))?$`)
 	reCommand  = regexp.MustCompile(`^([a-zA-Z][a-zA-Z\d]*)$`)
+
+	FLAG_END = "--"
 )
 
 func parseValue(s string) Varaint {
@@ -45,138 +47,202 @@ func (c *Command) findOptionByAlias(alias string) *Option {
 	return nil
 }
 
-func (c *Command) parse(args []string) error {
+type parseOption struct {
+	strict bool
+}
+
+func (c *Command) parse(args []string, parseOpt *parseOption) error {
 	ctx := newContext(c)
-	i := 0
 	declareArgLen := len(c._arguments)
 
-	for i < len(args) {
+	flagEnd := false
+	for i := 0; i < len(args); i++ {
 		token := args[i]
+
+		// 如果是--，就直接跳过
+		if token == FLAG_END {
+			flagEnd = true
+			continue
+		}
+
+		// flag end后的所有token都作为参数
+		if flagEnd {
+			ctx.parsedArgs = append(ctx.parsedArgs, parseValue(token))
+			continue
+		}
+
+		// 如果命中子命令，就直接交给子命令解析
+		if m := reCommand.FindStringSubmatch(token); m != nil {
+			if sub, ok := c._subCommands.get(m[1]); ok {
+				return sub.parse(args[i+1:], parseOpt)
+			}
+		}
 
 		// --name 或 --name=value
 		if m := reLongOpt.FindStringSubmatch(token); m != nil {
 			name, inlineVal := m[1], m[2]
 			opt := c.findOptionByName(name)
 			if opt == nil {
-				fmt.Fprintf(os.Stderr, "warning: unknown option: --%s\n", name)
-				i++
+				if parseOpt.strict {
+					return fmt.Errorf("unknown option: %v", token)
+				} else {
+					fmt.Fprintf(os.Stderr, "warning: unknown option: --%s\n", name)
+					continue
+				}
+			}
+			// option不需要值的情况：不接收cli值，也不接收默认值
+			if opt.valueName == "" {
+				ctx.parsedOpts[name] = Varaint{value: true}
+				if inlineVal != "" && parseOpt.strict {
+					return fmt.Errorf("option %v does not accept a value", token)
+				}
 				continue
 			}
-			i++
-			if opt.valueName != "" {
-				val := inlineVal
-				if val == "" {
-					if opt.valueRequired {
-						if i >= len(args) {
-							if !opt.defaultValue.IsEmpty() {
-								ctx.parsedOpts[name] = opt.defaultValue
-								continue
-							}
-							return fmt.Errorf("option --%s requires a value", name)
-						}
-						val = args[i]
-						i++
-					} else {
-						if i >= len(args) {
-							if !opt.defaultValue.IsEmpty() {
-								ctx.parsedOpts[name] = opt.defaultValue
-							} else {
-								ctx.parsedOpts[name] = Varaint{value: true}
-							}
-							continue
-						}
 
-						val = args[i]
-						i++
-					}
+			// 如果有直接的值，就直接解析
+			if inlineVal != "" {
+				ctx.parsedOpts[name] = parseValue(inlineVal)
+				continue
+			}
+
+			// 如果cli没有传值，尝试解析后一个token做为值,token尝试失败再尝试使用默认值
+			if nextI := i + 1; nextI < len(args) {
+				nextToken := args[nextI]
+				// 检验下一个token
+				if nextToken != FLAG_END &&
+					!reLongOpt.MatchString(nextToken) &&
+					!reShortOpt.MatchString(nextToken) {
+					ctx.parsedOpts[name] = parseValue(nextToken)
+					i = nextI
+					continue
 				}
-				if val != "" {
-					ctx.parsedOpts[name] = parseValue(val)
-				}
+			}
+
+			// 没有下一个token,或者下一个token检验失败，尝试使用默认值
+			if !opt.defaultValue.IsEmpty() {
+				ctx.parsedOpts[name] = opt.defaultValue
+				continue
+			}
+
+			// 以上都失败，如果这个值是必选的，直接结束
+			if opt.valueRequired {
+				return fmt.Errorf("option %v requires a value", token)
 			} else {
 				ctx.parsedOpts[name] = Varaint{value: true}
+				continue
 			}
-			continue
 		}
 
 		// -f 或 -f=value 或 -abc
 		if m := reShortOpt.FindStringSubmatch(token); m != nil {
 			aliases, inlineVal := m[1], m[2]
-			i++
 			// 多别名合并：前 n-1 个只能是布尔
 			for j := 0; j < len(aliases)-1; j++ {
 				a := string(aliases[j])
 				opt := c.findOptionByAlias(a)
+				// 严格模式，如果别名不存在，就直接结束
 				if opt == nil {
-					fmt.Fprintf(os.Stderr, "warning: unknown option: -%s\n", a)
+					if parseOpt.strict {
+						return fmt.Errorf("unknown option alias: -%s", a)
+					} else {
+						fmt.Fprintf(os.Stderr, "warning: unknown option: -%s\n", a)
+						continue
+					}
+				}
+
+				// option不需要值的情况：不接收cli值，也不接收默认值
+				if opt.valueName == "" {
+					ctx.parsedOpts[opt.name] = Varaint{value: true}
 					continue
 				}
-				if opt.valueName != "" && !opt.defaultValue.IsEmpty() {
+
+				// 尝试使用默认值
+				if !opt.defaultValue.IsEmpty() {
 					ctx.parsedOpts[opt.name] = opt.defaultValue
+					continue
+				}
+
+				// 以上都失败，如果这个值是必选的，直接结束
+				if opt.valueRequired {
+					return fmt.Errorf("option %v requires a value", token)
 				} else {
 					ctx.parsedOpts[opt.name] = Varaint{value: true}
+					continue
 				}
 			}
 			// 最后一个可带值
 			last := string(aliases[len(aliases)-1])
 			opt := c.findOptionByAlias(last)
+			// 严格模式，如果别名不存在，就直接结束
 			if opt == nil {
-				fmt.Fprintf(os.Stderr, "warning: unknown option: -%s\n", last)
+				if parseOpt.strict {
+					return fmt.Errorf("unknown option alias: -%s", last)
+				} else {
+					fmt.Fprintf(os.Stderr, "warning: unknown option: -%s\n", last)
+					continue
+				}
+			}
+
+			// option不需要值的情况：不接收cli值，也不接收默认值
+			if opt.valueName == "" {
+				ctx.parsedOpts[opt.name] = Varaint{value: true}
+				if inlineVal != "" && parseOpt.strict {
+					return fmt.Errorf("option %v does not accept a value", token)
+				}
 				continue
 			}
-			if opt.valueName != "" {
-				val := inlineVal
-				if val == "" {
-					if opt.valueRequired {
-						if i >= len(args) {
-							if !opt.defaultValue.IsEmpty() {
-								ctx.parsedOpts[opt.name] = opt.defaultValue
-								continue
-							}
-							return fmt.Errorf("option -%s requires a value", last)
-						}
-						val = args[i]
-						i++
-					} else {
-						if i >= len(args) {
-							if !opt.defaultValue.IsEmpty() {
-								ctx.parsedOpts[opt.name] = opt.defaultValue
-							} else {
-								ctx.parsedOpts[opt.name] = Varaint{value: true}
-							}
-							continue
-						}
 
-						val = args[i]
-						i++
-					}
-				}
+			// 如果有直接的值，就直接解析
+			if inlineVal != "" {
+				ctx.parsedOpts[opt.name] = parseValue(inlineVal)
+				continue
+			}
 
-				if val != "" {
-					ctx.parsedOpts[opt.name] = parseValue(val)
+			// 如果cli没有传值，尝试解析后一个token做为值,token尝试失败再尝试使用默认值
+			if nextI := i + 1; nextI < len(args) {
+				nextToken := args[nextI]
+				// 检验下一个token
+				if nextToken != FLAG_END &&
+					!reLongOpt.MatchString(nextToken) &&
+					!reShortOpt.MatchString(nextToken) {
+					ctx.parsedOpts[opt.name] = parseValue(nextToken)
+					i = nextI
+					continue
 				}
+			}
+
+			// 没有下一个token,或者下一个token检验失败，尝试使用默认值
+			if !opt.defaultValue.IsEmpty() {
+				ctx.parsedOpts[opt.name] = opt.defaultValue
+				continue
+			}
+
+			// 以上都失败，如果这个值是必选的，直接结束
+			if opt.valueRequired {
+				return fmt.Errorf("option %v requires a value", token)
 			} else {
 				ctx.parsedOpts[opt.name] = Varaint{value: true}
+				continue
 			}
-			continue
-		}
-
-		// 普通 token：子命令或位置参数
-		if m := reCommand.FindStringSubmatch(token); m != nil {
-			if sub, ok := c._subCommands.get(m[1]); ok {
-				return sub.parse(args[i+1:])
-			}
-		}
-
-		// 位置参数：按 _arguments 顺序填入
-		if declareArgLen == 0 {
-			return fmt.Errorf("argument %s is not expected", token)
-		} else if l := declareArgLen; l > 0 && i >= l && !c._arguments[l-1].multiValue {
-			return fmt.Errorf("argument %s is not expected", token)
 		}
 
 		ctx.parsedArgs = append(ctx.parsedArgs, parseValue(token))
-		i++
+	}
+
+	checkError := func() error {
+		// 位置参数：按 _arguments 顺序填入
+		if parseArgLen := len(ctx.parsedArgs); declareArgLen == 0 && parseArgLen > 0 {
+			return fmt.Errorf("argument is not expected, but got %v", parseArgLen)
+		} else if declareArgLen > 0 && parseArgLen > declareArgLen && !c._arguments[declareArgLen-1].multiValue {
+			return fmt.Errorf("%v arguments is expected, but got %v", declareArgLen, parseArgLen)
+		}
+		return nil
+	}
+
+	if parseOpt.strict {
+		if err := checkError(); err != nil {
+			return err
+		}
 	}
 
 	// help / version 优先，不触发 action

@@ -61,5 +61,8 @@ func (c *Command) Action(call func(ctx *Context)) *Command {
 }
 
 func (c *Command) Parse(args []string) error {
-	return c.parse(args)
+	return c.parse(args, &parseOption{strict: false})
+}
+func (c *Command) ParseStrict(args []string) error {
+	return c.parse(args, &parseOption{strict: true})
 }
