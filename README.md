@@ -201,23 +201,6 @@ if err := app.Parse(os.Args[1:]); err != nil {
 go test ./...
 ```
 
-## 目录结构
-
-```
-commander-go/
-├── argument.go         # 参数定义与解析
-├── command.go          # 子命令定义
-├── commander_go.go     # 核心 Command 结构与链式 API
-├── context.go          # 运行时值存储（Context）
-├── help.go             # 帮助文本生成
-├── options.go          # 选项定义与解析
-├── parse.go            # 命令行参数解析核心逻辑
-├── varaint.go          # 动态值类型
-├── example/
-│   └── todo/           # 完整 todo CLI 示例
-└── *_test.go           # 测试文件
-```
-
 ## 许可证
 
 MIT License

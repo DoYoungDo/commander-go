@@ -190,23 +190,6 @@ See [example/todo](https://github.com/DoYoungDo/QuickTodo) for a complete todo C
 go test ./...
 ```
 
-## Directory Structure
-
-```
-commander-go/
-├── argument.go         # Argument definition and parsing
-├── command.go          # Subcommand definition
-├── commander_go.go     # Core Command struct and chainable API
-├── context.go          # Runtime value storage (Context)
-├── help.go             # Help text generation
-├── options.go          # Option definition and parsing
-├── parse.go            # Core command-line parsing logic
-├── varaint.go          # Dynamic value type
-├── example/
-│   └── todo/           # Complete todo CLI example
-└── *_test.go           # Test files
-```
-
 ## License
 
 MIT License
