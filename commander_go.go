@@ -23,6 +23,10 @@ func New(name string) *Command {
 	return c
 }
 
+func NewFromJson(jsonData string) *Command {
+	return newFromJson(jsonData)
+}
+
 func (c *Command) Name(name string) *Command {
 	c.name = name
 	return c

@@ -245,6 +245,14 @@ func (c *Command) parse(args []string, parseOpt *parseOption) error {
 		}
 	}
 
+	for i := len(ctx.parsedArgs); i < len(c._arguments); i++ {
+		arg := c._arguments[i]
+		if arg.defaultValue.IsEmpty() {
+			continue
+		}
+		ctx.parsedArgs = append(ctx.parsedArgs, arg.defaultValue)
+	}
+
 	// help / version 优先，不触发 action
 	if _, ok := ctx.parsedOpts["help"]; ok {
 		fmt.Print(c.helpText())
