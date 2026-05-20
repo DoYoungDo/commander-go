@@ -182,15 +182,7 @@ if err := app.Parse(os.Args[1:]); err != nil {
 
 ## Complete Example
 
-See [example/todo](example/todo/main.go) for a complete todo CLI:
-
-```bash
-$ cd example/todo
-$ go run main.go --help
-$ go run main.go add 买菜
-$ go run main.go list
-$ go run main.go add -h
-```
+See [example/todo](https://github.com/DoYoungDo/QuickTodo) for a complete todo CLI:
 
 ## Testing
 

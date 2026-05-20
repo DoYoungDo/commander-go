@@ -193,15 +193,7 @@ if err := app.Parse(os.Args[1:]); err != nil {
 
 ## 完整示例
 
-见 [example/todo](example/todo/main.go)，一个完整的 todo CLI：
-
-```bash
-$ cd example/todo
-$ go run main.go --help
-$ go run main.go add 买菜
-$ go run main.go list
-$ go run main.go add -h
-```
+见 [example/todo](https://github.com/DoYoungDo/QuickTodo)，一个完整的 todo CLI：
 
 ## 测试
 
