@@ -51,6 +51,14 @@ func (c *Command) Command(nameAndArg, desc string) *Command {
 	return c.command(nameAndArg, desc)
 }
 
+func (c *Command) Child(name string) *Command {
+	cmd, ok := c._subCommands.get(name)
+	if ok {
+		return cmd
+	}
+	return nil
+}
+
 func (c *Command) Parent() *Command {
 	return c.parent
 }
