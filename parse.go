@@ -255,6 +255,10 @@ func (c *Command) parse(args []string, parseOpt *parseOption) error {
 
 	// help / version 优先，不触发 action
 	if _, ok := ctx.parsedOpts["help"]; ok {
+		if c.customHelpFn != nil {
+			return c.customHelpFn(ctx)
+		}
+
 		fmt.Print(c.helpText())
 		return nil
 	}
@@ -273,7 +277,7 @@ func (c *Command) parse(args []string, parseOpt *parseOption) error {
 	}
 
 	if c.actionFn != nil {
-		c.actionFn(ctx)
+		return c.actionFn(ctx)
 	}
 	return nil
 }

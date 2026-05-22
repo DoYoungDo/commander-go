@@ -1,6 +1,7 @@
 package commandergo
 
 import (
+	"errors"
 	"io"
 	"os"
 	"strings"
@@ -126,6 +127,25 @@ func TestParseSubCommand(t *testing.T) {
 	}
 }
 
+func TestParseActionEReturnsError(t *testing.T) {
+	expectedErr := errors.New("action failed")
+	err := New("app").
+		ActionE(func(ctx *Context) error {
+			return expectedErr
+		}).
+		Parse([]string{})
+
+	if !errors.Is(err, expectedErr) {
+		t.Fatalf("expected action error, got %v", err)
+	}
+}
+
+func TestParseNilActionDoesNotPanic(t *testing.T) {
+	if err := New("app").Action(nil).Parse([]string{}); err != nil {
+		t.Fatalf("unexpected parse error: %v", err)
+	}
+}
+
 func TestParseRequiredArgMissing(t *testing.T) {
 	err := New("app").
 		Arguments("<name>", "name", nil).
@@ -234,6 +254,26 @@ func TestParseHelpOutput(t *testing.T) {
 	err := New("app").Description("test app").Parse([]string{"--help"})
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
+	}
+}
+
+func TestParseCustomHelpReturnsError(t *testing.T) {
+	var actionCalled bool
+	expectedErr := errors.New("help failed")
+	err := New("app").
+		CustomHelp(func(ctx *Context) error {
+			return expectedErr
+		}).
+		Action(func(ctx *Context) {
+			actionCalled = true
+		}).
+		Parse([]string{"--help"})
+
+	if !errors.Is(err, expectedErr) {
+		t.Fatalf("expected custom help error, got %v", err)
+	}
+	if actionCalled {
+		t.Fatal("action should not be called for help")
 	}
 }
 

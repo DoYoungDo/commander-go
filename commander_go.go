@@ -1,5 +1,8 @@
 package commandergo
 
+type Action func(ctx *Context)
+type ActionE func(ctx *Context) error
+
 type Command struct {
 	name         string
 	version      string
@@ -8,7 +11,8 @@ type Command struct {
 	_arguments   Arguments
 	_options     Options
 	_subCommands Commands
-	actionFn     func(ctx *Context)
+	actionFn     ActionE
+	customHelpFn ActionE
 }
 
 func New(name string) *Command {
@@ -18,6 +22,8 @@ func New(name string) *Command {
 		_arguments:   Arguments{},
 		_options:     Options{},
 		_subCommands: Commands{},
+		actionFn:     nil,
+		customHelpFn: nil,
 	}
 	c.options("-h, --help", "display help for command", nil)
 	return c
@@ -29,6 +35,11 @@ func NewFromJson(jsonData string) *Command {
 
 func (c *Command) Name(name string) *Command {
 	c.name = name
+	return c
+}
+
+func (c *Command) CustomHelp(hp ActionE) *Command {
+	c.customHelpFn = hp
 	return c
 }
 
@@ -67,7 +78,20 @@ func (c *Command) Parent() *Command {
 	return c.parent
 }
 
-func (c *Command) Action(call func(ctx *Context)) *Command {
+func (c *Command) Action(call Action) *Command {
+	if call == nil {
+		// 允许 Action(nil) 清空之前注册的 action。
+		c.actionFn = nil
+		return c
+	}
+	c.actionFn = func(ctx *Context) error {
+		call(ctx)
+		return nil
+	}
+	return c
+}
+
+func (c *Command) ActionE(call ActionE) *Command {
 	c.actionFn = call
 	return c
 }
