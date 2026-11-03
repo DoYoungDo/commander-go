@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	commander "github.com/DoYoungDo/commander-go/internal"
+	commander "github.com/DoYoungDo/commander-go"
 )
 
 func main() {
