@@ -84,6 +84,8 @@ Options:
 | `--option <value>` | 必需值选项 |
 | `--option [value]` | 可选值选项 |
 
+未传入的选项不存在，`ctx.Opt(name).IsEmpty()` 为 `true`，即使声明了默认值也如此。带值选项显式出现但未提供值时才尝试使用默认值；无值选项显式出现时为 `true`。
+
 ### 参数语法
 
 | 格式 | 说明 |
@@ -130,8 +132,11 @@ commander.New("copy").
     Arguments("<from>", "源文件", nil).
     Arguments("[to]", "目标文件", nil).
     Action(func(ctx *commander.Context) {
-        fmt.Println("from:", ctx.Arg("from").ToString())
-        fmt.Println("to:", ctx.Arg("to").ToString())
+        args := ctx.Args()
+        fmt.Println("from:", args[0].ForceToString())
+        if len(args) > 1 && !args[1].IsEmpty() {
+            fmt.Println("to:", args[1].ForceToString())
+        }
     }).
     Parse(os.Args[1:])
 ```
@@ -147,7 +152,9 @@ app.Command("add", "添加文件到暂存区").
     Arguments("<files...>", "文件列表", nil).
     Options("-f, --force", "强制添加", false).
     Action(func(ctx *commander.Context) {
-        fmt.Println("add:", ctx.Arg("files").ToString())
+        for _, file := range ctx.Args() {
+            fmt.Println("add:", file.ForceToString())
+        }
     })
 
 app.Command("commit", "提交更改").

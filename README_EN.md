@@ -84,6 +84,8 @@ Options:
 | `--option <value>` | Option with required value |
 | `--option [value]` | Option with optional value |
 
+An omitted option is absent: `ctx.Opt(name).IsEmpty()` is `true`, even if a default is declared. Defaults are used only when an option accepting a value is explicitly supplied without a value. Flags are `true` when explicitly supplied.
+
 ### Argument Syntax
 
 | Format | Description |
@@ -119,8 +121,11 @@ commander.New("copy").
     Arguments("<from>", "Source file", nil).
     Arguments("[to]", "Target file", nil).
     Action(func(ctx *commander.Context) {
-        fmt.Println("from:", ctx.Arg("from").ToString())
-        fmt.Println("to:", ctx.Arg("to").ToString())
+        args := ctx.Args()
+        fmt.Println("from:", args[0].ForceToString())
+        if len(args) > 1 && !args[1].IsEmpty() {
+            fmt.Println("to:", args[1].ForceToString())
+        }
     }).
     Parse(os.Args[1:])
 ```
@@ -136,7 +141,9 @@ app.Command("add", "Add files to staging area").
     Arguments("<files...>", "File list", nil).
     Options("-f, --force", "Force add", false).
     Action(func(ctx *commander.Context) {
-        fmt.Println("add:", ctx.Arg("files").ToString())
+        for _, file := range ctx.Args() {
+            fmt.Println("add:", file.ForceToString())
+        }
     })
 
 app.Command("commit", "Commit changes").
