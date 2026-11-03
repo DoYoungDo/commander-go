@@ -15,10 +15,14 @@ Commander-Go 是一个仿照 [commander.js](https://github.com/tj/commander.js) 
 - 🔍 分层错误处理（未知选项 warning，缺少必填值 error）
 - 🎨 支持选项别名和组合（如 `-vd`）
 
-## 安装
+## 本地使用
+
+实现与测试位于 `internal/`，根目录不再提供 Go 包。受 Go 内部包规则限制，仅导入路径位于 `github.com/DoYoungDo/commander-go` 下的代码可导入该包，外部项目不能直接使用。
 
 ```bash
-go get github.com/DoYoungDo/commander-go
+git clone https://github.com/DoYoungDo/commander-go.git
+cd commander-go/example/todo
+go run . --help
 ```
 
 ## 快速开始
@@ -29,7 +33,7 @@ package main
 import (
     "fmt"
     "os"
-    commander "github.com/DoYoungDo/commander-go"
+    commander "github.com/DoYoungDo/commander-go/internal"
 )
 
 func main() {

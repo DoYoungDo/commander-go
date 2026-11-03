@@ -15,10 +15,14 @@ Commander-Go is a Go command-line parsing library inspired by [commander.js](htt
 - 🔍 Layered error handling (unknown option warning, missing required value error)
 - 🎨 Support for option aliases and combinations (like `-vd`)
 
-## Installation
+## Local Usage
+
+Implementation and tests live in `internal/`; the repository root no longer provides a Go package. Go's internal package rules allow imports only from paths under `github.com/DoYoungDo/commander-go`. External projects cannot import this package directly.
 
 ```bash
-go get github.com/DoYoungDo/commander-go
+git clone https://github.com/DoYoungDo/commander-go.git
+cd commander-go/example/todo
+go run . --help
 ```
 
 ## Quick Start
@@ -29,7 +33,7 @@ package main
 import (
     "fmt"
     "os"
-    commander "github.com/DoYoungDo/commander-go"
+    commander "github.com/DoYoungDo/commander-go/internal"
 )
 
 func main() {
